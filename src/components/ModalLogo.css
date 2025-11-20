@@ -1,0 +1,41 @@
+/* Modal Logo Styles */
+.modal-logo,
+.snapflix-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+  width: 100%;
+  text-align: center;
+}
+
+.modal-logo .snapflix-logo,
+.snapflix-logo-container .snapflix-logo {
+  margin: 0 auto;
+  display: block;
+  text-align: center;
+  width: 100%;
+  max-width: 200px;
+}
+
+.modal-logo .logo-container,
+.snapflix-logo-container .logo-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 0 auto;
+}
+
+/* Ensure logo is centered */
+.modal-logo .play-button-icon,
+.snapflix-logo-container .play-button-icon {
+  margin: 0 auto;
+}
+
+.modal-logo .logo-text,
+.snapflix-logo-container .logo-text {
+  margin: 0 auto;
+}
+
