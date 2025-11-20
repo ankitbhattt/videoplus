@@ -28,18 +28,38 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
     setShowLanguageDropdown(false);
   };
 
+  // Debug menu visibility
+  useEffect(() => {
+    console.log('Menu state changed:', showMobileMenu);
+    if (mobileMenuRef.current) {
+      const menu = mobileMenuRef.current;
+      console.log('Menu element exists:', !!menu);
+      console.log('Menu classes:', menu.className);
+      const styles = window.getComputedStyle(menu);
+      console.log('Computed display:', styles.display);
+      console.log('Computed visibility:', styles.visibility);
+      console.log('Computed opacity:', styles.opacity);
+      console.log('Computed z-index:', styles.zIndex);
+      console.log('Computed position:', styles.position);
+      console.log('Computed top:', styles.top);
+      console.log('Computed left:', styles.left);
+      console.log('Computed width:', styles.width);
+      console.log('Computed height:', styles.height);
+    } else {
+      console.log('Menu element NOT found in DOM');
+    }
+  }, [showMobileMenu]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      // if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-      //   setShowProfileDropdown(false);
-      // }
-      if (languageRef.current && !languageRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (languageRef.current && !languageRef.current.contains(target)) {
         setShowLanguageDropdown(false);
       }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
-        const target = event.target as HTMLElement;
-        if (!target.closest('.mobile-menu-toggle') && !target.closest('.mobile-menu')) {
+      if (showMobileMenu && mobileMenuRef.current && !mobileMenuRef.current.contains(target)) {
+        const htmlTarget = event.target as HTMLElement;
+        if (!htmlTarget.closest('.mobile-menu-toggle')) {
           setShowMobileMenu(false);
         }
       }
@@ -47,8 +67,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
     if (showMobileMenu) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
       return () => {
         document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('touchstart', handleClickOutside);
       };
     }
   }, [showMobileMenu]);
@@ -91,8 +113,18 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
         {/* Mobile Menu Toggle */}
         <button 
           className={`mobile-menu-toggle ${showMobileMenu ? 'active' : ''}`}
-          onClick={() => setShowMobileMenu(!showMobileMenu)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Toggle clicked, current state:', showMobileMenu);
+            setShowMobileMenu(prev => {
+              console.log('Setting menu to:', !prev);
+              return !prev;
+            });
+          }}
           aria-label="Toggle menu"
+          type="button"
+          style={{ zIndex: 10000 }}
         >
           <span className="hamburger-line"></span>
           <span className="hamburger-line"></span>
@@ -125,88 +157,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
             LOGIN
           </button>
         </nav>
-        
-        {/* Mobile Menu */}
-        {showMobileMenu && (
-          <div className="mobile-menu" ref={mobileMenuRef}>
-            <div className="mobile-menu-content">
-              <div className="mobile-menu-nav">
-                <button 
-                  className={`mobile-nav-link ${currentPage === 'home' ? 'active' : ''}`}
-                  onClick={() => handleNavigation('home')}
-                >
-                  <span className="mobile-nav-icon">🏠</span>
-                  {t('header.home')}
-                </button>
-                <button 
-                  className={`mobile-nav-link ${currentPage === 'videos' ? 'active' : ''}`}
-                  onClick={() => handleNavigation('videos')}
-                >
-                  <span className="mobile-nav-icon">🎬</span>
-                  {t('header.videos')}
-                </button>
-                <button 
-                  className={`mobile-nav-link ${currentPage === 'favorites' ? 'active' : ''}`}
-                  onClick={() => handleNavigation('favorites')}
-                >
-                  <span className="mobile-nav-icon">❤️</span>
-                  FAVORITES
-                </button>
-                <button 
-                  className={`mobile-nav-link ${currentPage === 'subscription' ? 'active' : ''}`}
-                  onClick={() => handleNavigation('subscription')}
-                >
-                  <span className="mobile-nav-icon">💳</span>
-                  {t('header.subscribe')}
-                </button>
-                <button 
-                  className="mobile-nav-link"
-                  onClick={() => handleNavigation('login')}
-                >
-                  <span className="mobile-nav-icon">🔑</span>
-                  LOGIN
-                </button>
-              </div>
-              
-              <div className="mobile-menu-divider"></div>
-              
-              {/* <div className="mobile-menu-profile">
-                <button className="mobile-nav-link" onClick={() => handleProfileAction('login')}>
-                  <span className="mobile-nav-icon">🔑</span>
-                  {t('login.title')}
-                </button>
-                <button className="mobile-nav-link" onClick={() => handleProfileAction('faq')}>
-                  <span className="mobile-nav-icon">❓</span>
-                  {t('profile.menu.faq')}
-                </button>
-                <button className="mobile-nav-link" onClick={() => handleProfileAction('about')}>
-                  <span className="mobile-nav-icon">ℹ️</span>
-                  {t('profile.menu.about')}
-                </button>
-              </div> */}
-              
-              <div className="mobile-menu-divider"></div>
-              
-              <div className="mobile-menu-language">
-                <div className="mobile-language-label">Language</div>
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    className={`mobile-language-option ${language === lang.code ? 'selected' : ''}`}
-                    onClick={() => {
-                      handleLanguageSelect(lang.code);
-                      setShowMobileMenu(false);
-                    }}
-                  >
-                    <span className="mobile-nav-icon">{lang.flag}</span>
-                    {lang.name}
-                    {language === lang.code && <span className="check-icon">✓</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
         
         <div className="header-actions">
           <div className="language-selector" ref={languageRef}>
@@ -273,6 +223,73 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
               </div>
             )}
           </div> */}
+        </div>
+      </div>
+      
+      {/* Mobile Menu - Outside header-container */}
+      <div 
+        className={`mobile-menu ${showMobileMenu ? 'open' : ''}`} 
+        ref={mobileMenuRef}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mobile-menu-content">
+          <div className="mobile-menu-nav">
+            <button 
+              className={`mobile-nav-link ${currentPage === 'home' ? 'active' : ''}`}
+              onClick={() => handleNavigation('home')}
+            >
+              <span className="mobile-nav-icon">🏠</span>
+              {t('header.home')}
+            </button>
+            <button 
+              className={`mobile-nav-link ${currentPage === 'videos' ? 'active' : ''}`}
+              onClick={() => handleNavigation('videos')}
+            >
+              <span className="mobile-nav-icon">🎬</span>
+              {t('header.videos')}
+            </button>
+            <button 
+              className={`mobile-nav-link ${currentPage === 'favorites' ? 'active' : ''}`}
+              onClick={() => handleNavigation('favorites')}
+            >
+              <span className="mobile-nav-icon">❤️</span>
+              FAVORITES
+            </button>
+            <button 
+              className={`mobile-nav-link ${currentPage === 'subscription' ? 'active' : ''}`}
+              onClick={() => handleNavigation('subscription')}
+            >
+              <span className="mobile-nav-icon">💳</span>
+              {t('header.subscribe')}
+            </button>
+            <button 
+              className="mobile-nav-link"
+              onClick={() => handleNavigation('login')}
+            >
+              <span className="mobile-nav-icon">🔑</span>
+              LOGIN
+            </button>
+          </div>
+          
+          <div className="mobile-menu-divider"></div>
+          
+          <div className="mobile-menu-language">
+            <div className="mobile-language-label">Language</div>
+            {languages.map((lang) => (
+              <button
+                key={lang.code}
+                className={`mobile-language-option ${language === lang.code ? 'selected' : ''}`}
+                onClick={() => {
+                  handleLanguageSelect(lang.code);
+                  setShowMobileMenu(false);
+                }}
+              >
+                <span className="mobile-nav-icon">{lang.flag}</span>
+                {lang.name}
+                {language === lang.code && <span className="check-icon">✓</span>}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </header>
