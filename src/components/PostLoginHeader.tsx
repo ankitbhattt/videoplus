@@ -71,17 +71,19 @@ const PostLoginHeader: React.FC<PostLoginHeaderProps> = ({ onLogout, onNavigate,
       // }
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
         const target = event.target as HTMLElement;
-        if (!target.closest('.mobile-menu-toggle')) {
+        if (!target.closest('.mobile-menu-toggle') && !target.closest('.mobile-menu')) {
           setShowMobileMenu(false);
         }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+    if (showMobileMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showMobileMenu]);
 
   return (
     <header className="post-login-header">

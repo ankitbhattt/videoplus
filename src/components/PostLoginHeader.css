@@ -398,11 +398,16 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(26, 26, 26, 0.98);
-  backdrop-filter: blur(5px);
-  z-index: 999;
+  background: var(--bg-primary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1002;
   animation: slideDownMenu 0.3s ease-out;
   overflow-y: auto;
+  border-top: 1px solid var(--border);
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 @keyframes slideDownMenu {
@@ -641,6 +646,9 @@
   .mobile-menu {
     top: 55px;
     will-change: auto;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 }
 
@@ -681,6 +689,9 @@
   
   .mobile-menu {
     top: 52px;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
   
   .mobile-menu-content {
