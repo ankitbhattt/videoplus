@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './VideosSection.css';
 import { useTranslation } from '../contexts/TranslationContext';
+import { TRENDING_HOME_VIDEOS, primeVideoFrame } from '../config/videoLibrary';
 
 interface TrendingVideo {
   name: string;
@@ -15,36 +16,11 @@ const VideosSection: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  const trendingVideos: TrendingVideo[] = [
-    { 
-      name: "GTA 6 Trailer", 
-      video: "https://res.cloudinary.com/dbudqhbum/video/upload/Anime%20complete%20reels/157_-_GTA_6_Trailer_sdhb8f.mp4", 
-      image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=800&auto=format&fit=crop",
-      views: "2.5M",
-      duration: "3:24"
-    },
-    { 
-      name: "OnePiece Edit", 
-      video: "https://res.cloudinary.com/dbudqhbum/video/upload/Anime%20complete%20reels/127_-_Onepiece_edit_ifvaba.mp4", 
-      image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop",
-      views: "1.8M",
-      duration: "2:45"
-    },
-    { 
-      name: "Cyberpunk Edit", 
-      video: "https://res.cloudinary.com/dbudqhbum/video/upload/Anime%20complete%20reels/134_-_Cyberpunk_Edit_kwejen.mp4", 
-      image: "https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&auto=format&fit=crop",
-      views: "1.2M",
-      duration: "4:12"
-    },
-    { 
-      name: "Death Note Edit", 
-      video: "https://res.cloudinary.com/dbudqhbum/video/upload/Anime%20complete%20reels/148_-_Death_note_edit_rf3xpx.mp4", 
-      image: "https://images.unsplash.com/photo-1517842645767-c639042777db?w=800&auto=format&fit=crop",
-      views: "950K",
-      duration: "3:58"
-    }
-  ];
+  const trendingVideos = TRENDING_HOME_VIDEOS.map((video) => ({
+    ...video,
+    views: '1.2M',
+    duration: '3:00',
+  }));
 
   const handleMouseEnter = (index: number) => {
     setHoveredIndex(index);
@@ -95,6 +71,7 @@ const VideosSection: React.FC = () => {
                     playsInline
                     loop={false}
                     preload="none"
+                    onLoadedData={(e) => primeVideoFrame(e.currentTarget)}
                   />
                 ) : (
                   <img

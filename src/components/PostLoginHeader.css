@@ -183,6 +183,27 @@
   transform: translateY(0) scale(1);
 }
 
+.subscribe-btn.subscribed,
+.subscribe-btn:disabled {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  box-shadow: none;
+  cursor: default;
+  transform: none;
+}
+
+.subscribe-btn.subscribed::before,
+.subscribe-btn:disabled::before {
+  display: none;
+}
+
+.subscribe-btn.subscribed:hover,
+.subscribe-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 /* Language Dropdown */
 .language-selector {
   position: relative;

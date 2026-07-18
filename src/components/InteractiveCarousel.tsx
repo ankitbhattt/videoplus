@@ -1,17 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './InteractiveCarousel.css';
 import { useTranslation } from '../contexts/TranslationContext';
-
-interface CarouselItem {
-  id: number;
-  title: string;
-  video: string;
-  description: string;
-  image: string;
-}
+import { VideoData } from '../types/video';
+import { CAROUSEL_VIDEOS, primeVideoFrame } from '../config/videoLibrary';
 
 interface InteractiveCarouselProps {
-  onGameClick: () => void;
+  onGameClick: (video: VideoData) => void;
 }
 
 const InteractiveCarousel: React.FC<InteractiveCarouselProps> = ({ onGameClick }) => {
@@ -35,43 +29,13 @@ const InteractiveCarousel: React.FC<InteractiveCarouselProps> = ({ onGameClick }
     }
   }, []);
 
-  const carouselItems: CarouselItem[] = [
-    {
-      id: 1,
-      title: "GTA 6 Trailer",
-      video: "https://res.cloudinary.com/dbudqhbum/video/upload/Anime%20complete%20reels/157_-_GTA_6_Trailer_sdhb8f.mp4",
-      description: "The most anticipated game trailer",
-      image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=800&auto=format&fit=crop"
-    },
-    {
-      id: 2,
-      title: "OnePiece Edit",
-      video: "https://res.cloudinary.com/dbudqhbum/video/upload/Anime%20complete%20reels/127_-_Onepiece_edit_ifvaba.mp4",
-      description: "Epic OnePiece moments compilation",
-      image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop"
-    },
-    {
-      id: 3,
-      title: "Cyberpunk Edit",
-      video: "https://res.cloudinary.com/dbudqhbum/video/upload/Anime%20complete%20reels/134_-_Cyberpunk_Edit_kwejen.mp4",
-      description: "Futuristic cyberpunk action",
-      image: "https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&auto=format&fit=crop"
-    },
-    {
-      id: 4,
-      title: "OnePiece Quotes",
-      video: "https://res.cloudinary.com/dbudqhbum/video/upload/Anime%20complete%20reels/153_-_The_quotes_from_onepiece_aqq6qj.mp4",
-      description: "Inspirational quotes from OnePiece",
-      image: "https://images.unsplash.com/photo-1532146629-5b8e43dd8f1b?w=800&auto=format&fit=crop"
-    },
-    {
-      id: 5,
-      title: "Death Note Edit",
-      video: "https://res.cloudinary.com/dbudqhbum/video/upload/Anime%20complete%20reels/148_-_Death_note_edit_rf3xpx.mp4",
-      description: "Mind games and psychological thriller",
-      image: "https://images.unsplash.com/photo-1517842645767-c639042777db?w=800&auto=format&fit=crop"
-    }
-  ];
+  const carouselItems = CAROUSEL_VIDEOS.map((item, index) => ({
+    id: index + 1,
+    title: item.name,
+    video: item.video,
+    description: item.name,
+    image: item.image,
+  }));
 
 
   const nextSlide = useCallback(() => {
@@ -248,17 +212,21 @@ const InteractiveCarousel: React.FC<InteractiveCarouselProps> = ({ onGameClick }
     }
   };
 
+  const currentItem = carouselItems[currentIndex];
+
   const handlePlayClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering carousel click
-    onGameClick();
+    e.stopPropagation();
+    onGameClick({
+      title: currentItem.title,
+      video: currentItem.video,
+      image: currentItem.image,
+    });
   };
 
   const handleMoreInfoClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering carousel click
+    e.stopPropagation();
     setShowMoreInfo(!showMoreInfo);
   };
-
-  const currentItem = carouselItems[currentIndex];
 
   return (
     <div 
@@ -352,6 +320,7 @@ const InteractiveCarousel: React.FC<InteractiveCarouselProps> = ({ onGameClick }
                 playsInline
                 loop={false}
                 preload="none"
+                onLoadedData={(e) => primeVideoFrame(e.currentTarget)}
               />
             )}
             <div className="media-overlay video-active">

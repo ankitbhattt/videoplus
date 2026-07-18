@@ -7,9 +7,17 @@ interface PostLoginHeaderProps {
   onLogout: () => void;
   onNavigate?: (page: string) => void;
   currentPage?: string;
+  isSubscribed?: boolean;
+  onSubscribeClick?: () => void;
 }
 
-const PostLoginHeader: React.FC<PostLoginHeaderProps> = ({ onLogout, onNavigate, currentPage }) => {
+const PostLoginHeader: React.FC<PostLoginHeaderProps> = ({
+  onLogout,
+  onNavigate,
+  currentPage,
+  isSubscribed = false,
+  onSubscribeClick,
+}) => {
   const { language, setLanguage, t } = useTranslation();
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   // const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -204,10 +212,11 @@ const PostLoginHeader: React.FC<PostLoginHeaderProps> = ({ onLogout, onNavigate,
           </div>
           
           <button 
-            className="subscribe-btn"
-            onClick={() => onNavigate && onNavigate('subscription')}
+            className={`subscribe-btn ${isSubscribed ? 'subscribed' : ''}`}
+            onClick={() => onSubscribeClick?.()}
+            disabled={isSubscribed}
           >
-            {t('header.subscribe')}
+            {isSubscribed ? t('header.subscribed') : t('header.subscribe')}
           </button>
           
           {/* <div className="profile-dropdown" ref={profileRef}>
@@ -289,10 +298,14 @@ const PostLoginHeader: React.FC<PostLoginHeaderProps> = ({ onLogout, onNavigate,
             </button>
             <button 
               className={`mobile-nav-link ${currentPage === 'subscription' ? 'active' : ''}`}
-              onClick={() => handleNavigation('subscription')}
+              onClick={() => {
+                setShowMobileMenu(false);
+                onSubscribeClick?.();
+              }}
+              disabled={isSubscribed}
             >
               <span className="mobile-nav-icon">💳</span>
-              {t('header.subscribe')}
+              {isSubscribed ? t('header.subscribed') : t('header.subscribe')}
             </button>
             <button 
               className="mobile-nav-link"

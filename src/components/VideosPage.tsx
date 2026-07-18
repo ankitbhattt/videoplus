@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './VideosPage.css';
+import { VideoData } from '../types/video';
 
 interface VideoItem {
   id: number;
@@ -10,12 +11,12 @@ interface VideoItem {
 }
 
 interface VideosPageProps {
-  onVideoClick?: () => void;
+  onVideoClick?: (video: VideoData) => void;
 }
 
 interface VideoCardProps {
   video: VideoItem;
-  onCardClick: () => void;
+  onCardClick: (video: VideoData) => void;
 }
 
 const VideoCard: React.FC<VideoCardProps> = ({ video, onCardClick }) => {
@@ -94,7 +95,11 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onCardClick }) => {
       }, 5000);
     }
     
-    onCardClick();
+    onCardClick({
+      title: video.title,
+      video: video.video,
+      image: video.image,
+    });
   };
 
   return (
@@ -198,7 +203,7 @@ const VideosPage: React.FC<VideosPageProps> = ({ onVideoClick }) => {
             <VideoCard 
               key={video.id}
               video={video}
-              onCardClick={() => onVideoClick?.()}
+              onCardClick={(videoData) => onVideoClick?.(videoData)}
             />
           ))}
         </div>

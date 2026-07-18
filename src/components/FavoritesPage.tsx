@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './FavoritesPage.css';
+import { VideoData } from '../types/video';
 
 interface VideoItem {
   name: string;
@@ -9,7 +10,7 @@ interface VideoItem {
 }
 
 interface FavoritesPageProps {
-  onVideoClick?: () => void;
+  onVideoClick?: (video: VideoData) => void;
 }
 
 const FavoritesPage: React.FC<FavoritesPageProps> = ({ onVideoClick }) => {
@@ -83,7 +84,17 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ onVideoClick }) => {
 
       <div className="favorites-grid-page">
         {favoriteVideos.map((video, index) => (
-          <div key={index} className="favorite-card-page" onClick={onVideoClick}>
+          <div
+            key={index}
+            className="favorite-card-page"
+            onClick={() =>
+              onVideoClick?.({
+                title: video.name,
+                video: video.video,
+                image: video.image,
+              })
+            }
+          >
             <div className="favorite-video-container-page">
               <video
                 data-src={video.video}

@@ -6,9 +6,10 @@ import videoPlusLogo from '../assets/VideoPlus Logo.png';
 interface HeaderProps {
   onNavigate?: (page: string) => void;
   currentPage?: string;
+  onSubscribeClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
+const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, onSubscribeClick }) => {
   const { language, setLanguage, t } = useTranslation();
   // const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
@@ -189,7 +190,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
           
           <button 
             className="subscribe-btn"
-            onClick={() => onNavigate && onNavigate('subscription')}
+            onClick={() => onSubscribeClick?.()}
           >
             {t('header.subscribe')}
           </button>
@@ -257,7 +258,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
             </button>
             <button 
               className={`mobile-nav-link ${currentPage === 'subscription' ? 'active' : ''}`}
-              onClick={() => handleNavigation('subscription')}
+              onClick={() => {
+                setShowMobileMenu(false);
+                onSubscribeClick?.();
+              }}
             >
               <span className="mobile-nav-icon">💳</span>
               {t('header.subscribe')}

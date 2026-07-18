@@ -1,69 +1,40 @@
 import React, { useState } from 'react';
 import './LoginModal.css';
 import { useTranslation } from '../contexts/TranslationContext';
+import { COUNTRY_CODE, PHONE_DIGIT_LENGTH } from '../config/api';
 import videoPlusLogo from '../assets/VideoPlus Logo.png';
 
 interface LoginModalProps {
-  onSubmit: (phone: string) => void;
+  onSubmit: (phone: string) => Promise<void>;
   onClose: () => void;
+  isSubmitting?: boolean;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ onSubmit, onClose }) => {
+const LoginModal: React.FC<LoginModalProps> = ({ onSubmit, onClose, isSubmitting = false }) => {
   const { t } = useTranslation();
-  const [phone, setPhone] = useState('+27');
+  const [phone, setPhone] = useState(COUNTRY_CODE);
   const [phoneError, setPhoneError] = useState('');
 
-
-  // Mobile number validation function for South Africa
   const validateMobileNumber = (phoneNumber: string): boolean => {
-    // Remove all non-digit characters except +
     const cleanNumber = phoneNumber.replace(/[^\d+]/g, '');
-    
-    // Check if it starts with +27
-    if (!cleanNumber.startsWith('+27')) {
+
+    if (!cleanNumber.startsWith(COUNTRY_CODE)) {
       return false;
     }
-    
-    // Check if it has exactly 9 digits after +27 (South African mobile numbers)
-    const digits = cleanNumber.substring(3);
-    return digits.length === 9 && /^\d{9}$/.test(digits);
+
+    const digits = cleanNumber.substring(COUNTRY_CODE.length);
+    return digits.length === PHONE_DIGIT_LENGTH && /^\d+$/.test(digits);
   };
 
-  // Format phone number as user types
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-    
-    // Remove all non-digit characters except +
-    value = value.replace(/[^\d+]/g, '');
-    
-    // Ensure it starts with +27
-    if (!value.startsWith('+27')) {
-      value = '+27';
-    }
-    
-    // Limit to +27 followed by max 9 digits
-    if (value.length > 12) {
-      value = value.substring(0, 12);
-    }
-    
-    setPhone(value);
-    
-    // Clear error when user starts typing
-    if (phoneError) {
-      setPhoneError('');
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate mobile number
+
     if (!validateMobileNumber(phone)) {
-      setPhoneError('Please enter a valid 9-digit South African mobile number');
+      setPhoneError(`Please enter a valid ${PHONE_DIGIT_LENGTH}-digit mobile number`);
       return;
     }
-    
-    onSubmit(phone);
+
+    await onSubmit(phone);
   };
 
   return (
@@ -86,20 +57,24 @@ const LoginModal: React.FC<LoginModalProps> = ({ onSubmit, onClose }) => {
           <div className="input-group">
             <label className="input-label">{t('login.phone.label')}</label>
             <div className="phone-input-wrapper">
-              <span className="phone-prefix">+27</span>
+              <span className="phone-prefix">{COUNTRY_CODE}</span>
               <input
                 type="tel"
-                value={phone.replace('+27', '')}
+                value={phone.replace(COUNTRY_CODE, '')}
                 onChange={(e) => {
                   let value = e.target.value.replace(/[^\d]/g, '');
-                  if (value.length > 9) {
-                    value = value.substring(0, 9);
+                  if (value.length > PHONE_DIGIT_LENGTH) {
+                    value = value.substring(0, PHONE_DIGIT_LENGTH);
                   }
-                  setPhone('+27' + value);
+                  setPhone(COUNTRY_CODE + value);
+                  if (phoneError) {
+                    setPhoneError('');
+                  }
                 }}
                 className={`phone-input ${phoneError ? 'error' : ''}`}
-                placeholder="012345678"
+                placeholder="76521792"
                 required
+                disabled={isSubmitting}
               />
             </div>
             {phoneError && (
@@ -110,13 +85,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ onSubmit, onClose }) => {
           <button 
             type="submit" 
             className="send-otp-button"
-            disabled={!validateMobileNumber(phone)}
+            disabled={!validateMobileNumber(phone) || isSubmitting}
             style={{
               background: 'var(--gradient-primary)',
-              opacity: !validateMobileNumber(phone) ? 0.6 : 1
+              opacity: !validateMobileNumber(phone) || isSubmitting ? 0.6 : 1
             }}
           >
-            <span>{t('login.send.otp')}</span>
+            <span>{isSubmitting ? 'Sending...' : t('login.send.otp')}</span>
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
               <path d="M4 10L16 10M10 4L16 10L10 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>

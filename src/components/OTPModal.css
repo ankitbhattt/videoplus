@@ -590,3 +590,49 @@
   background: var(--gradient-primary) !important;
   opacity: 0.6 !important;
 }
+
+.otp-error-message {
+  color: #ef4444;
+  font-size: 14px;
+  margin-top: 12px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.otp-error-message::before {
+  content: "⚠";
+  font-size: 16px;
+}
+
+.otp-input.error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.otp-back-button {
+  width: 100%;
+  background: transparent;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.2));
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 4px;
+}
+
+.otp-back-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary, #fff);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.otp-back-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

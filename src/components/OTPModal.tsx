@@ -4,15 +4,24 @@ import videoPlusLogo from '../assets/VideoPlus Logo.png';
 
 interface OTPModalProps {
   phoneNumber: string;
-  onVerify: () => void;
+  onVerify: (otp: string) => Promise<void>;
+  onBack: () => void;
   onClose: () => void;
+  isVerifying?: boolean;
+  verifyError?: string;
 }
 
-const OTPModal: React.FC<OTPModalProps> = ({ phoneNumber, onVerify, onClose }) => {
+const OTPModal: React.FC<OTPModalProps> = ({
+  phoneNumber,
+  onVerify,
+  onBack,
+  onClose,
+  isVerifying = false,
+  verifyError = '',
+}) => {
   const [otp, setOtp] = useState(['', '', '', '']);
-  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
+  const [timeLeft, setTimeLeft] = useState(120);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
-
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -29,7 +38,6 @@ const OTPModal: React.FC<OTPModalProps> = ({ phoneNumber, onVerify, onClose }) =
       newOtp[index] = value;
       setOtp(newOtp);
 
-      // Auto-focus next input
       if (value && index < 3) {
         const nextInput = document.getElementById(`otp-${index + 1}`);
         nextInput?.focus();
@@ -44,9 +52,9 @@ const OTPModal: React.FC<OTPModalProps> = ({ phoneNumber, onVerify, onClose }) =
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (otp.every(digit => digit !== '')) {
-      onVerify();
+      await onVerify(otp.join(''));
     }
   };
 
@@ -54,7 +62,6 @@ const OTPModal: React.FC<OTPModalProps> = ({ phoneNumber, onVerify, onClose }) =
     setTimeLeft(120);
     setIsResendDisabled(true);
     setOtp(['', '', '', '']);
-    // In a real app, you would resend the OTP here
   };
 
   const formatTime = (seconds: number) => {
@@ -62,6 +69,8 @@ const OTPModal: React.FC<OTPModalProps> = ({ phoneNumber, onVerify, onClose }) =
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const isOtpComplete = otp.every(digit => digit !== '');
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -88,16 +97,16 @@ const OTPModal: React.FC<OTPModalProps> = ({ phoneNumber, onVerify, onClose }) =
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className={`otp-input ${digit ? 'filled' : ''}`}
+                className={`otp-input ${digit ? 'filled' : ''} ${verifyError ? 'error' : ''}`}
                 maxLength={1}
                 autoComplete="off"
+                disabled={isVerifying}
               />
             ))}
           </div>
-          <div className="otp-progress">
-            {/* <div className={`progress-bar ${otp.filter(d => d).length > 0 ? 'active' : ''}`} 
-                 style={{width: `${(otp.filter(d => d).length / 4) * 100}%`}}></div> */}
-          </div>
+          {verifyError && (
+            <div className="otp-error-message">{verifyError}</div>
+          )}
         </div>
 
         <div className="security-notice">
@@ -117,7 +126,7 @@ const OTPModal: React.FC<OTPModalProps> = ({ phoneNumber, onVerify, onClose }) =
               </div>
             </div>
           ) : (
-            <button className="resend-button" onClick={handleResend}>
+            <button className="resend-button" onClick={handleResend} disabled={isVerifying}>
               <span>🔄</span>
               <span>Resend OTP</span>
             </button>
@@ -128,18 +137,27 @@ const OTPModal: React.FC<OTPModalProps> = ({ phoneNumber, onVerify, onClose }) =
           <button 
             className="verify-button"
             onClick={handleVerify}
-            disabled={!otp.every(digit => digit !== '')}
+            disabled={!isOtpComplete || isVerifying}
             style={{
               background: 'var(--gradient-primary)',
-              opacity: !otp.every(digit => digit !== '') ? 0.6 : 1
+              opacity: !isOtpComplete || isVerifying ? 0.6 : 1
             }}
           >
-            <span>Verify & Continue</span>
+            <span>{isVerifying ? 'Verifying...' : 'Verify & Continue'}</span>
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
               <path d="M4 10L16 10M10 4L16 10L10 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         </div>
+
+        <button
+          type="button"
+          className="otp-back-button"
+          onClick={onBack}
+          disabled={isVerifying}
+        >
+          ← Back to Phone Number
+        </button>
       </div>
     </div>
   );
